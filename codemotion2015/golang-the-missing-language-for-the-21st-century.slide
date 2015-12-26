@@ -1,0 +1,279 @@
+Go (Golang) - The missing language for the 21st century
+Codemotion 2015
+17 Dec 2015
+
+Uri Shamay
+Lead Developer, Juno
+shamayuri@gmail.com
+
+[[https://github.com/cmpxchg16]]
+@cmpxchg16
+[[http://cmpxchg16.me]]
+*Standing*on*the*shoulders*of*giants*
+
+* The Go programming language
+- Written by Google
+- Written in the 21st century :: Design: 2007, Open Source: 2009, Stable Go 1.0: 2012
+- 6 Years old
+- Influenced by: C, occam, Limbo, Modula, Newsqueak, Oberon, Pascal, Smalltalk
+- Current Version: Go 1.5.1
+
+* Continue..
+- Static types but looks like a script
+- Compiled, concurrent, imperative, structured
+- Functions can return multiple value
+- No classes, has structs
+- No exceptions, has errors
+- OOP based on interfaces & composition
+- Visibility is at the package level. No public/protected/package/private.
+- Has pointers to control memory layout for high performance, *BUT* - *no*buffer*overflows,*no*pointer*arithmetic*
+- Memory efficient: concrete primitives: int & uint *BUT*also* int8 & uint8, float32 & float64
+- Garbage-collected: since Go 1.5 - GC latencies well below the 10 millisecond
+
+* Continue...
+- Rich standard library
+- Compiles to native code, statically linked, and since Go 1.5 also dynamically
+- Blazing fast compilation - the whole SDK took tens of seconds
+- Easy to deploy one static binary without any dependencies
+- Cross platform compilation
+- ABI (Application Binary Interface) - compile on one Linux distro, and run in any Linux distro
+- General purpose: Tools & Utilities, Cloud Infrstructure, IOT (Raspberry Pi & more), Mobile, Web
+- Google App Engine support Python & Java, now also Go applications
+
+* Continue....
+Supported OS ($GOOS) & ARCH ($GOARCH)
+
+- darwin    (386, amd64, arm, arm64)
+- dragonfly (amd64)
+- freebsd   (386, amd64, arm)
+- linux     (386, amd64, arm, arm64, ppc64, ppc64le)
+- netbsd    (386, amd64, arm)
+- openbsd   (386, amd64, arm)
+- plan9     (386, amd64)
+- solaris	(amd64)
+- windows	(386, amd64)
+
+* Motivation for Go
+
+Started as an answer to software problems at Google:
+
+- multicore processors
+- networked systems
+- massive computation clusters
+- scale: 10⁷ lines of code
+- scale: 10³ programmers
+- scale: 10⁶⁺ machines (design point)
+
+Deployed: parts of YouTube, dl.google.com, Blogger, Google Code, Google Fiber, ...
+
+* Great Tools
+- go [build] [run]
+- go get
+- gofmt, goimports
+- godoc
+- go test [-cover] [-race]
+- go vet
+- gofix, gofmt -r, eg
+- golint
+- godep
+- present
+
+* Profiling visualization (web)
+    $ go tool pprof
+
+.image blockprofile.png
+
+* Coverage visualization
+    $ go tool cover -html=cover.out
+
+.image cover.png
+
+* Hello World
+.play hello.go
+
+    $>go run hello.go
+    Hello, world.
+    Hello, world, again.
+
+* Concurrency
+* Goroutines
+A goroutine is a thread of control within the program, with its own local variables and stack. Cheap, easy to create.
+
+- Concurrency is not parallelism, although it enables parallelism.
+- A goroutine runs concurrently (but not necessarily in parallel).
+- If you have only one processor, your program can still be concurrent  but it cannot be parallel.
+
+.link http://golang.org/s/concurrency-is-not-parallelism
+
+
+*You*can*dispatch*millions*of*goroutines*-*and*OS*native*threads*NOT*!*
+
+* Without goroutines
+.play goroutines101.1.go /STARTMAIN1/,/STOPMAIN1/
+* Output:
+    $>go run goroutines101.1.go | head -20
+    even is the dominant (0)!
+    even is the dominant (2)!
+    even is the dominant (4)!
+    even is the dominant (6)!
+    even is the dominant (8)!
+    even is the dominant (10)!
+    even is the dominant (12)!
+    even is the dominant (14)!
+    even is the dominant (16)!
+    even is the dominant (18)!
+    even is the dominant (20)!
+    even is the dominant (22)!
+    even is the dominant (24)!
+    even is the dominant (26)!
+    even is the dominant (28)!
+    even is the dominant (30)!
+    even is the dominant (32)!
+    even is the dominant (34)!
+    even is the dominant (36)!
+    even is the dominant (38)!
+
+*  With goroutines - single-thread
+.play goroutines101.2.go /STARTMAIN1/,/STOPMAIN1/
+* Output:
+    $>go run goroutines101.2.go | head -20
+    even is the dominant (0)!
+    odd is the dominant (1)!
+    even is the dominant (2)!
+    odd is the dominant (3)!
+    even is the dominant (4)!
+    odd is the dominant (5)!
+    even is the dominant (6)!
+    even is the dominant (8)!
+    even is the dominant (10)!
+    even is the dominant (12)!
+    even is the dominant (14)!
+    even is the dominant (16)!
+    even is the dominant (18)!
+    even is the dominant (20)!
+    even is the dominant (22)!
+    even is the dominant (24)!
+    even is the dominant (26)!
+    even is the dominant (28)!
+    even is the dominant (30)!
+    even is the dominant (32)!
+
+*  With goroutines multi-threads
+.play goroutines101.3.go /STARTMAIN1/,/STOPMAIN1/
+* Output:
+    $>go run goroutines101.3.go | head -20
+    odd is the dominant (1)!
+    even is the dominant (0)!
+    odd is the dominant (3)!
+    odd is the dominant (5)!
+    even is the dominant (2)!
+    odd is the dominant (7)!
+    even is the dominant (4)!
+    odd is the dominant (9)!
+    even is the dominant (6)!
+    odd is the dominant (11)!
+    even is the dominant (8)!
+    odd is the dominant (13)!
+    even is the dominant (10)!
+    odd is the dominant (15)!
+    even is the dominant (12)!
+    even is the dominant (14)!
+    odd is the dominant (17)!
+    even is the dominant (16)!
+    odd is the dominant (19)!
+    odd is the dominant (21)!
+
+* Race Detector
+
+.play race.go
+
+* Race detector example
+    $ go run -race race.go
+    ==================
+    WARNING: DATA RACE
+    Read by goroutine 6:
+      main.main.func2()
+        /Users/urishamay/sandbox/codemotion2015/race.go:10 +0x30
+
+    Previous write by goroutine 5:
+      main.main.func1()
+        /Users/urishamay/sandbox/codemotion2015/race.go:7 +0x4c
+
+    Goroutine 6 (running) created at:
+      main.main()
+        /Users/urishamay/sandbox/codemotion2015/race.go:11 +0x50
+
+    Goroutine 5 (finished) created at:
+      main.main()
+        /Users/urishamay/sandbox/codemotion2015/race.go:8 +0x38
+    ==================
+    Found 1 data race(s)
+    exit status 66
+
+* Channels
+* Channels
+*Problem:*Prime*sieve*
+
+Problem specification from
+_Communicating_Sequential_Processes_, by C. A. R. Hoare, 1978
+
+"Problem: To print in ascending order all primes less than
+10000. Use an array of processes, SIEVE, in which each
+process inputs a prime from its predecessor and prints it.
+The process then inputs an ascending stream of numbers
+from its predecessor and passes them on to its successor,
+suppressing any that are multiples of the original prime. "
+
+*Solution*
+
+Defined in the 1978 CSP paper.
+
+* Channels
+Channel communication is the main method of synchronization between goroutines.
+
+*Don't*communicate*by*sharing*memory,*share*memory*by*communicating.*
+
+Construction:
+
+	ch1  := make(chan int)     // make unbuffered channel (synchronous). 0 capacity by default
+	ch2  := make(chan int, 10) // make buffered channel (asynchronous)
+	ch1 <- 1 // send data to channel
+	<- ch2   // receive data from channel
+
+* Let's build web crawler!
+
+* Web crawler: dummy HTTP requests
+
+.play webcrawler1.go /STARTMAIN1/,/STOPMAIN1/
+
+* Web crawler: let's wait to workers
+
+.play webcrawler2.go /STARTMAIN1/,/STOPMAIN1/
+
+* Web crawler: let's communicate the results to main dispatcher
+
+.play webcrawler3.go /STARTMAIN1/,/STOPMAIN1/
+
+
+* Let's build http upload server!!
+* You can use it as a Log-Receiver/Images-Upload-Server etc...
+
+.play http-upload-server.go /STARTMAIN1/,/STOPMAIN1/
+
+* Resources
+
+The Go Programming Language
+
+[[https://golang.org]]
+
+A Tour Of Go
+[[https://tour.golang.org]]
+
+Go Playground
+[[https://play.golang.org]]
+
+The Go Blog
+[[https://blog.golang.org]]
+
+Go wiki
+[[https://github.com/golang/go/wiki]]
