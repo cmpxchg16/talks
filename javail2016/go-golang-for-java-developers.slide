@@ -1,0 +1,325 @@
+Go (Golang) for Java Developers
+Java.IL Meetup
+3 Apr 2016
+
+Uri Shamay
+Lead Developer, Juno
+shamayuri@gmail.com
+
+[[https://github.com/cmpxchg16]]
+@cmpxchg16
+[[http://cmpxchg16.me]]
+*Standing*on*the*shoulders*of*giants*
+
+* The Go programming language
+- Written by Google
+- Written in the 21st century :: Design: 2007, Open Source: 2009, Stable Go 1.0: 2012
+- 6 Years old
+- Influenced by: C, occam, Limbo, Modula, Newsqueak, Oberon, Pascal, Smalltalk
+- Current Version: Go 1.6
+- The target is networked servers, but it's a great general-purpose language
+
+* Continue..
+Supported OS ($GOOS) & ARCH ($GOARCH)
+
+- darwin    (386, amd64, arm, arm64)
+- dragonfly (amd64)
+- freebsd   (386, amd64, arm)
+- linux     (386, amd64, arm, arm64, ppc64, ppc64le)
+- netbsd    (386, amd64, arm)
+- openbsd   (386, amd64, arm)
+- plan9     (386, amd64)
+- solaris	  (amd64)
+- windows	  (386, amd64)
+
+* Motivation for Go
+
+Started as an answer to software problems at Google:
+
+- multicore processors
+- networked systems
+- massive computation clusters
+- scale: 10⁷ lines of code
+- scale: 10³ programmers
+- scale: 10⁶⁺ machines (design point)
+
+* Who uses Go at Google?
+
+Lots of projects. Thousands of Go programmers. Millions of lines of Go code.
+
+Public examples:
+
+- SPDY proxy for Chrome on mobile devices
+- Download server for Chrome, ChromeOS, Android SDK, Earth, etc.
+- YouTube Vitess MySQL balancer
+
+* Who uses Go besides Google?
+
+.link http://golang.org/wiki/GoUsers
+
+Apcera, Bitbucket, bitly, Canonical, CloudFlare, Core OS, Digital Ocean, Docker, Dropbox, Facebook, Getty Images, GitHub, Heroku, Iron.io, Kubernetes, Medium, MongoDB services, Mozilla services, New York Times, pool.ntp.org, Secret, SmugMug, SoundCloud, Stripe, Square, Thomson Reuters, Tumblr, ...
+
+
+* Great Tools
+- go [build] [run]
+- go get
+- gofmt
+- go test [-cover] [-race]
+- go vet
+- golint
+- godoc
+
+* Profiling visualization (web)
+    $ go tool pprof
+
+.image blockprofile.png
+
+* Coverage visualization
+    $ go tool cover -html=cover.out
+
+.image cover.png
+
+* Comparing Go and Java
+
+* Go and Java have much in common
+
+- Rich standard library
+- Cross platform & CPU architecture
+- Garbage collected, since Go 1.5 - GC latencies well below 10 milliseconds
+- C family (imperative, braces)
+- Statically typed. Looks like a script
+
+* Continue...
+
+- Memory safe (nil references, runtime bounds checks)
+- Variables are always initialized (zero/nil/false)
+- Methods
+- Interfaces
+- Type assertions (`instanceof`)
+- Reflection
+
+* Go differs from Java in several ways
+
+- Programs compile to machine code.  There's no VM.
+- Statically linked binaries, since Go 1.5 also dynamically
+- Control over memory layout, has pointers, *BUT* - *no*buffer*overflows,*no*pointer*arithmetic*
+- Function values and lexical closures
+- Functions can return multiple values
+- Memory efficient: concrete primitives: int & uint *BUT*also* int8 & uint8, float32 & float64
+- Built-in generic maps and arrays/slices
+- Built-in concurrency from first version
+
+* Go intentionally leaves out many features
+
+- No classes, has structs
+- No constructors
+- No direct inheritance. OOP based on interfaces & composition
+- No `final`
+- No exceptions, has errors
+- No annotations
+- No user-defined generics
+- No public/protected/package/private, visibility is at the package level
+
+* Go looks familiar to Java programmers
+
+Main.java
+
+.code Main.java
+
+hello.go
+
+.play hello.go
+
+    $>go run hello.go
+    Hello, world.
+
+* Concurrency
+* Goroutines
+A goroutine is a thread of control within the program, with its own local variables and stack. Cheap, easy to create.
+
+- Concurrency is not parallelism, although it enables parallelism.
+- A goroutine runs concurrently (but not necessarily in parallel).
+- If you have only one processor, your program can still be concurrent  but it cannot be parallel.
+
+*You*can*dispatch*millions*of*goroutines*-*and*OS*native*threads*NOT*!*
+
+* Without goroutines - single thread
+.play goroutines101.1.go /STARTMAIN1/,/STOPMAIN1/
+* Output:
+    $>go run goroutines101.1.go
+    0
+    url: https://golang.org, status code: 200, body len: 7856
+    0
+    url: https://golang.org, status code: 200, body len: 7856
+    0
+    url: https://golang.org, status code: 200, body len: 7856
+    0
+    url: https://golang.org, status code: 200, body len: 7856
+    0
+    url: https://golang.org, status code: 200, body len: 7856
+    0
+    url: https://golang.org, status code: 200, body len: 7856
+    0
+    url: https://golang.org, status code: 200, body len: 7856
+    0
+    ...
+
+*  With cooperative goroutines - single thread
+.play goroutines101.2.go /STARTMAIN1/,/STOPMAIN1/
+* Output:
+    $>go run goroutines101.2.go
+    url: https://golang.org, status code: 200, body len: 7856
+    1
+    url: https://golang.org, status code: 200, body len: 7856
+    1
+    url: https://golang.org, status code: 200, body len: 7856
+    1
+    url: https://github.com/golang, status code: 200, body len: 72600
+    url: https://golang.org, status code: 200, body len: 7856
+    2
+    url: https://github.com/golang, status code: 200, body len: 72600
+    url: https://golang.org, status code: 200, body len: 7856
+    3
+    url: https://github.com/golang, status code: 200, body len: 72600
+    url: https://golang.org, status code: 200, body len: 7856
+    4
+    url: https://github.com/golang, status code: 200, body len: 72600
+    url: https://golang.org, status code: 200, body len: 7856
+    5
+    url: https://github.com/golang, status code: 200, body len: 72600
+    url: https://golang.org, status code: 200, body len: 7856
+
+    ...
+
+*  With goroutines - no cooperative - single thread
+.play goroutines101.3.go /STARTMAIN1/,/STOPMAIN1/
+* Output:
+        $>go run goroutines101.3.go
+        url: https://golang.org, status code: 200, body len: 7856
+        0
+        url: https://golang.org, status code: 200, body len: 7856
+        0
+        url: https://golang.org, status code: 200, body len: 7856
+        0
+
+        ***PROGRAM HALTED***
+
+*  With goroutines - multi threads
+.play goroutines101.4.go /STARTMAIN1/,/STOPMAIN1/
+* Output:
+    $>go run goroutines101.3.go
+    url: https://golang.org, status code: 200, body len: 7856
+    242475467
+    url: https://golang.org, status code: 200, body len: 7856
+    335142144
+    url: https://golang.org, status code: 200, body len: 7856
+    434719265
+    url: https://golang.org, status code: 200, body len: 7856
+    538521801
+    url: https://golang.org, status code: 200, body len: 7856
+    626111870
+    url: https://golang.org, status code: 200, body len: 7856
+    721214452
+    url: https://golang.org, status code: 200, body len: 7856
+    825607211
+    url: https://golang.org, status code: 200, body len: 7856
+    919156439
+    url: https://golang.org, status code: 200, body len: 7856
+    1020298919
+
+* Channels
+* Channels
+*Problem:*Prime*sieve*
+
+Problem specification from
+_Communicating_Sequential_Processes_, by C. A. R. Hoare, 1978
+
+"Problem: To print in ascending order all primes less than
+10000. Use an array of processes, SIEVE, in which each
+process inputs a prime from its predecessor and prints it.
+The process then inputs an ascending stream of numbers
+from its predecessor and passes them on to its successor,
+suppressing any that are multiples of the original prime. "
+
+*Solution*
+
+Defined in the 1978 CSP paper.
+
+* Channels
+Channel communication is the main method of synchronization between goroutines.
+
+*Don't*communicate*by*sharing*memory,*share*memory*by*communicating.*
+
+Construction:
+
+	ch1  := make(chan int)     // make unbuffered channel (synchronous). 0 capacity by default
+	ch2  := make(chan int, 10) // make buffered channel (asynchronous)
+	ch1 <- 1 // send data to channel
+	<- ch2   // receive data from channel
+
+* Select
+
+A `select` statement blocks until communication can proceed.
+
+*No*locks.*No*condition*variables.*No*callbacks.*
+
+.play select.go /START/,/STOP/
+
+* Let's build web crawler!
+
+* Web Crawler
+
+.play webcrawler.go /STARTMAIN1/,/STOPMAIN1/
+
+* Let's build http upload server!!
+* You can use it as a Log-Receiver/Images-Upload-Server etc...
+
+.play http-upload-server.go /STARTMAIN1/,/STOPMAIN1/
+
+* Another Great Tool: Race Detector
+
+.play race.go
+
+* Race detector example
+    $ go run -race race.go
+    ==================
+    WARNING: DATA RACE
+    Read by goroutine 6:
+      main.main.func2()
+        /Users/urishamay/sandbox/codemotion2015/race.go:10 +0x30
+
+    Previous write by goroutine 5:
+      main.main.func1()
+        /Users/urishamay/sandbox/codemotion2015/race.go:7 +0x4c
+
+    Goroutine 6 (running) created at:
+      main.main()
+        /Users/urishamay/sandbox/codemotion2015/race.go:11 +0x50
+
+    Goroutine 5 (finished) created at:
+      main.main()
+        /Users/urishamay/sandbox/codemotion2015/race.go:8 +0x38
+    ==================
+    Found 1 data race(s)
+    exit status 66
+
+* Resources
+
+The Go Programming Language
+
+[[https://golang.org]]
+
+A Tour Of Go
+[[https://tour.golang.org]]
+
+Go Playground
+[[https://play.golang.org]]
+
+The Go Blog
+[[https://blog.golang.org]]
+
+Go wiki
+[[https://github.com/golang/go/wiki]]
+
+Concurrency Is Not Parallelism
+[[http://golang.org/s/concurrency-is-not-parallelism]]
